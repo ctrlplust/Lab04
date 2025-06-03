@@ -79,6 +79,18 @@ public class Hospital {
         return areasAtencion.get(nombre.toLowerCase());
     }
 
+    public Collection<Paciente> getColaAtencion() {
+        return new ArrayList<>(colaAtencion);
+    }
+
+    public List<Paciente> getPacientesAtendidos() {
+        return pacientesAtendidos;
+    }
+
+    public boolean eliminarDeCola(Paciente p) {
+        return colaAtencion.remove(p);
+    }
+
     public static void main(String[] args) {
         Hospital hospital = new Hospital();
 
