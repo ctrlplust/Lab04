@@ -1,6 +1,5 @@
 # Lab04
 
 # Compilar
-'''
-ola
-'''
+
+<pre> ```bash javac -d bin src/*.java ``` </pre>
