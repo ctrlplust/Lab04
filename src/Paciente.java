@@ -11,6 +11,7 @@ public class Paciente {
     private String estado; // "en_espera", "en_atencion", "atendido"
     private String area; // "SAPU", "urgencia_adulto", "infantil"
     private Stack<String> historialCambios;
+    private Stack<Integer> historialCategorias = new Stack<>();
 
     // Constructor
     public Paciente(String nombre, String apellido, String id, int categoria, long tiempoLlegada, String area) {
@@ -84,5 +85,14 @@ public class Paciente {
             return historialCambios.peek();
         }
         return "No hay cambios registrados.";
+    }
+
+    public void cambiarCategoria(int nuevaCategoria) {
+        historialCategorias.push(this.categoria); // Guarda la anterior
+        this.categoria = nuevaCategoria;
+    }
+
+    public Stack<Integer> getHistorialCategorias() {
+        return historialCategorias;
     }
 }

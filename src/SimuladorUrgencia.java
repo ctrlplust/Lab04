@@ -74,12 +74,11 @@ public class SimuladorUrgencia {
 
         // Guardar los tiempos de atención en archivo
         new java.io.File("Simulaciones").mkdirs();
-        guardarTiemposAtencion(tiemposAtencion, "Simulaciones/tiempos_atencion.csv");
+        guardarTiemposAtencion(tiemposAtencion, "Simulaciones/tiempos_atencion.txt");
     }
 
     private void atenderPacientePrioritario(int tiempoActual) {
         Paciente pacienteAtendido = null;
-
         // Prioridad: atender primero a los pacientes excedidos que ya hayan llegado
         Iterator<Paciente> it = hospital.getColaAtencion().iterator();
         while (it.hasNext()) {
@@ -176,9 +175,75 @@ public class SimuladorUrgencia {
         }
     }
 
+    public static List<Paciente> generarPacientes(int cantidad) {
+        List<Paciente> lista = new ArrayList<>();
+        Random rand = new Random();
+        for (int i = 0; i < cantidad; i++) {
+            String id = String.format("PX%04d", i+1);
+            String nombre = "Nombre" + i;
+            String apellido = "Apellido" + i;
+            int categoria = 1 + rand.nextInt(5); // 1 a 5
+            long tiempoLlegada = i * 300; // cada 5 minutos
+            String area = "sapu";
+            lista.add(new Paciente(nombre, apellido, id, categoria, tiempoLlegada, area));
+        }
+        return lista;
+    }
+
     public static void main(String[] args) throws IOException {
         List<Paciente> pacientes = cargarPacientes("Simulaciones/Pacientes_24h.txt");
-        SimuladorUrgencia simulador = new SimuladorUrgencia(pacientes);
-        simulador.simular(pacientes.size());
+
+        // Acumuladores para promedios
+        Map<Integer, Long> sumaPorCategoria = new HashMap<>();
+        Map<Integer, Integer> cantidadPorCategoria = new HashMap<>();
+
+        for (int i = 0; i < 15; i++) {
+            // Clonar la lista para cada simulación (evita efectos colaterales)
+            List<Paciente> copiaPacientes = new ArrayList<>();
+            for (Paciente p : pacientes) {
+                copiaPacientes.add(new Paciente(
+                    p.getNombre(), p.getApellido(), p.getId(), p.getCategoria(), p.getTiempoLlegada(), p.getArea()
+                ));
+            }
+            SimuladorUrgencia simulador = new SimuladorUrgencia(copiaPacientes);
+            simulador.simular(copiaPacientes.size());
+
+            // Sumar resultados de esta simulación
+            for (int cat = 1; cat <= 5; cat++) {
+                long suma = simulador.sumaTiemposEsperaPorCategoria.getOrDefault(cat, 0L);
+                int cantidad = simulador.cantidadPorCategoria.getOrDefault(cat, 0);
+                sumaPorCategoria.put(cat, sumaPorCategoria.getOrDefault(cat, 0L) + suma);
+                cantidadPorCategoria.put(cat, cantidadPorCategoria.getOrDefault(cat, 0) + cantidad);
+            }
+        }
+
+        System.out.println("\n===== Promedio de espera por categoría en 15 simulaciones =====");
+        for (int cat = 1; cat <= 5; cat++) {
+            int cantidad = cantidadPorCategoria.getOrDefault(cat, 0);
+            long suma = sumaPorCategoria.getOrDefault(cat, 0L);
+            double promedio = cantidad > 0 ? (double) suma / cantidad : 0;
+            System.out.printf("  - Categoría %d: %.2f segundos%n", cat, promedio);
+        }
+
+        // Para saturación:
+        List<Paciente> pacientesSaturados = generarPacientes(200);
+        SimuladorUrgencia simuladorSaturado = new SimuladorUrgencia(pacientesSaturados);
+        simuladorSaturado.simular(pacientesSaturados.size());
+        // Puedes imprimir aquí los promedios por categoría:
+        System.out.println("\n===== Saturación: Promedio de espera por categoría =====");
+        for (int cat = 1; cat <= 5; cat++) {
+            int cantidad = simuladorSaturado.cantidadPorCategoria.getOrDefault(cat, 0);
+            long suma = simuladorSaturado.sumaTiemposEsperaPorCategoria.getOrDefault(cat, 0L);
+            double promedio = cantidad > 0 ? (double) suma / cantidad : 0;
+            System.out.printf("  - Categoría %d: %.2f segundos%n", cat, promedio);
+        }
+
+        // Simulación de cambio de categoría
+        List<Paciente> pacientesCambio = generarPacientes(10);
+        Paciente malCategorizado = pacientesCambio.get(3); // Por ejemplo, el 4to paciente
+        System.out.println("\nAntes del cambio: " + malCategorizado.getNombre() + " categoría: " + malCategorizado.getCategoria());
+        malCategorizado.cambiarCategoria(1); // Cambia a C1
+        System.out.println("Después del cambio: " + malCategorizado.getNombre() + " categoría: " + malCategorizado.getCategoria());
+        System.out.println("Historial de categorías: " + malCategorizado.getHistorialCategorias());
     }
 }

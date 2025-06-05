@@ -1,0 +1,16 @@
+ID,Nombre,Apellido,Categoría,TiempoLlegada,TiempoAtencion
+PX0001,Nombre0,Apellido0,4,0,0
+PX0002,Nombre1,Apellido1,4,300,660
+PX0003,Nombre2,Apellido2,4,600,360
+PX0005,Nombre4,Apellido4,4,1200,1200
+PX0006,Nombre5,Apellido5,4,1500,900
+PX0007,Nombre6,Apellido6,5,1800,2040
+PX0009,Nombre8,Apellido8,5,2400,1440
+PX0012,Nombre11,Apellido11,4,3300,1980
+PX0016,Nombre15,Apellido15,5,4500,2700
+PX0017,Nombre16,Apellido16,4,4800,3360
+PX0018,Nombre17,Apellido17,5,5100,3060
+PX0022,Nombre21,Apellido21,5,6300,4740
+PX0024,Nombre23,Apellido23,5,6900,4140
+PX0027,Nombre26,Apellido26,5,7800,4680
+PX0036,Nombre35,Apellido35,5,10500,6300
