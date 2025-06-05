@@ -2,4 +2,4 @@
 
 # Compilar
 
-<pre> ``` javac -d bin src/*.java ``` </pre>
+<pre> javac -d bin src/*.java </pre>
