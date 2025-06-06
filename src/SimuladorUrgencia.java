@@ -37,7 +37,7 @@ public class SimuladorUrgencia {
             int tiempoActual = minutoActual * 60;
 
             // Cambia la frecuencia de llegada
-            if (minutoActual % 8 == 0 && pacientesIngresados < pacientesPorDia && !colaPacientes.isEmpty()) {
+            if (minutoActual % 10 == 0 && pacientesIngresados < pacientesPorDia && !colaPacientes.isEmpty()) {
                 Paciente nuevo = colaPacientes.poll();
                 hospital.registrarPaciente(nuevo);
                 pacientesIngresados++;
@@ -55,7 +55,7 @@ public class SimuladorUrgencia {
             }
 
             // Cambia la frecuencia de atención
-            if (minutoActual % 20 == 0) {
+            if (minutoActual % 15 == 0) {
                 atenderPacientePrioritario(tiempoActual);
             }
 
@@ -79,24 +79,39 @@ public class SimuladorUrgencia {
 
     private void atenderPacientePrioritario(int tiempoActual) {
         Paciente pacienteAtendido = null;
-        // Prioridad: atender primero a los pacientes excedidos que ya hayan llegado
-        Iterator<Paciente> it = hospital.getColaAtencion().iterator();
-        while (it.hasNext()) {
-            Paciente p = it.next();
-            if (idsExcedidos.contains(p.getId()) && p.getTiempoLlegada() <= tiempoActual) {
-                pacienteAtendido = p;
-                hospital.eliminarDeCola(p);
-                break;
+
+        // 1. Buscar pacientes que han esperado más de 90 minutos (5400 segundos)
+        Paciente pacienteEsperandoMucho = null;
+        long maxEspera = 0;
+        for (Paciente p : hospital.getColaAtencion()) {
+            long espera = tiempoActual - p.getTiempoLlegada();
+            if (espera >= 5400 && espera > maxEspera) { // 90 minutos
+                pacienteEsperandoMucho = p;
+                maxEspera = espera;
+            }
+        }
+        if (pacienteEsperandoMucho != null) {
+            pacienteAtendido = pacienteEsperandoMucho;
+            hospital.eliminarDeCola(pacienteAtendido);
+        }
+
+        // 2. Si no hay pacientes esperando mucho, atender excedidos
+        if (pacienteAtendido == null) {
+            Iterator<Paciente> it = hospital.getColaAtencion().iterator();
+            while (it.hasNext()) {
+                Paciente p = it.next();
+                if (idsExcedidos.contains(p.getId()) && p.getTiempoLlegada() <= tiempoActual) {
+                    pacienteAtendido = p;
+                    hospital.eliminarDeCola(p);
+                    break;
+                }
             }
         }
 
-        // Si no había pacientes excedidos, atender al siguiente normalmente
+        // 3. Si no, atender normalmente por prioridad
         if (pacienteAtendido == null) {
             pacienteAtendido = hospital.atenderSiguiente();
-
-            // Verifica que no se atienda antes de su llegada
             if (pacienteAtendido != null && pacienteAtendido.getTiempoLlegada() > tiempoActual) {
-                // Devuelve a la cola si aún no ha llegado
                 hospital.registrarPaciente(pacienteAtendido);
                 pacienteAtendido = null;
             }
@@ -104,17 +119,14 @@ public class SimuladorUrgencia {
 
         if (pacienteAtendido != null) {
             long espera = tiempoActual - pacienteAtendido.getTiempoLlegada();
-            if (espera < 0) espera = 0; // Ajuste defensivo
+            if (espera < 0) espera = 0;
 
             int cat = pacienteAtendido.getCategoria();
-
             pacientesAtendidosPorCategoria.put(cat, pacientesAtendidosPorCategoria.getOrDefault(cat, 0) + 1);
             sumaTiemposEsperaPorCategoria.put(cat, sumaTiemposEsperaPorCategoria.getOrDefault(cat, 0L) + espera);
             cantidadPorCategoria.put(cat, cantidadPorCategoria.getOrDefault(cat, 0) + 1);
 
             pacienteAtendido.setEstado("atendido");
-
-            // Registrar tiempo de atención
             tiemposAtencion.put(pacienteAtendido.getId(), espera);
         }
     }
@@ -245,5 +257,38 @@ public class SimuladorUrgencia {
         malCategorizado.cambiarCategoria(1); // Cambia a C1
         System.out.println("Después del cambio: " + malCategorizado.getNombre() + " categoría: " + malCategorizado.getCategoria());
         System.out.println("Historial de categorías: " + malCategorizado.getHistorialCategorias());
+
+        // ===== SEGUIMIENTO INDIVIDUAL PACIENTE C4 =====
+        Paciente pacienteC4 = null;
+        for (Paciente p : pacientes) {
+            if (p.getCategoria() == 4) {
+                pacienteC4 = p;
+                break;
+            }
+        }
+
+        if (pacienteC4 != null) {
+            System.out.println("\n===== Seguimiento individual: Paciente de Categoría 4 =====");
+            System.out.println("Seleccionado: " + pacienteC4.getNombre() + " " + pacienteC4.getApellido() + " (ID: " + pacienteC4.getId() + ")");
+
+            List<Paciente> copiaPacientes = new ArrayList<>();
+            for (Paciente p : pacientes) {
+                copiaPacientes.add(new Paciente(
+                    p.getNombre(), p.getApellido(), p.getId(), p.getCategoria(), p.getTiempoLlegada(), p.getArea()
+                ));
+            }
+
+            SimuladorUrgencia simulador = new SimuladorUrgencia(copiaPacientes);
+            simulador.simular(copiaPacientes.size());
+
+            Long tiempoEspera = simulador.tiemposAtencion.get(pacienteC4.getId());
+            if (tiempoEspera != null) {
+                System.out.printf("→ Tiempo de espera hasta ser atendido: %.2f minutos (%d segundos)\n", tiempoEspera / 60.0, tiempoEspera);
+            } else {
+                System.out.println("→ El paciente C4 no fue atendido durante la simulación.");
+            }
+        } else {
+            System.out.println("\n[AVISO] No se encontró paciente de categoría 4 en la muestra.");
+        }
     }
 }
