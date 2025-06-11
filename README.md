@@ -20,8 +20,11 @@ Antes crear bin, Para poder compilar todos los .class en el bin
 
 <pre> java -cp bin src.Paciente </pre>
 
-<pre> java -cp bin src.SimuladorUrgencia 
 # Salida esperada
+```
+java -cp bin src.SimuladorUrgencia
+```
+
 ```
 --- Ejecutando análisis de una simulación de 24h ---
 =========================================
@@ -33,5 +36,5 @@ Antes crear bin, Para poder compilar todos los .class en el bin
 ... (y el resto del análisis detallado)
   
 ```
-</pre>
+
 
