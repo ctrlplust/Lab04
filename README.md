@@ -41,7 +41,7 @@ java -cp bin src.SimuladorUrgencia --average
   
 ```
 
-#Salida Esperada (--average)
+# Salida Esperada (--average)
 
 ```
 ===== Promedio de espera por categoría en 15 simulaciones =====
