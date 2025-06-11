@@ -150,7 +150,7 @@ public class SimuladorUrgencia {
             modoPromedio = true;
         }
 
-        int numeroDePacientes = 400; // Parámetro clave para el test de estrés.
+        int numeroDePacientes = 400;
 
         if (modoPromedio) {
             System.out.println("--- Ejecutando prueba de promedios (15 simulaciones con " + numeroDePacientes + " pacientes) ---");
