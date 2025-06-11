@@ -12,7 +12,7 @@ public class SimuladorUrgencia {
     private Map<Integer, Integer> cantidadPorCategoria = new HashMap<>();
     private List<Paciente> pacientesExcedidos = new ArrayList<>();
     private Set<String> idsExcedidos = new HashSet<>(); // Para evitar duplicados
-    private Map<String, Long> tiemposAtencion = new HashMap<>(); // Nuevo: almacenar tiempos de atención
+    private Map<String, Long> tiemposAtencion = new HashMap<>(); // almacenar tiempos de atención
 
     private Map<Integer, Integer> tiemposMaximos = Map.of(
         1, 10 * 60,  // 10 minutos
@@ -44,7 +44,7 @@ public class SimuladorUrgencia {
                 nuevosPacientes++;
             }
 
-            // Revisar pacientes que excedieron su tiempo de espera
+            // Revisa pacientes que excedieron su tiempo de espera
             for (Paciente p : hospital.getColaAtencion())  {
                 int maxEspera = tiemposMaximos.getOrDefault(p.getCategoria(), 120 * 60);
                 long espera = minutoActual * 60 - p.getTiempoLlegada();
@@ -54,7 +54,7 @@ public class SimuladorUrgencia {
                 }
             }
 
-            // Cambia la frecuencia de atención
+            // Frecuencia de atencion
             if (minutoActual % 15 == 0) {
                 atenderPacientePrioritario(tiempoActual);
             }
@@ -82,7 +82,7 @@ public class SimuladorUrgencia {
     private void atenderPacientePrioritario(int tiempoActual) {
         Paciente pacienteAtendido = null;
 
-        // 1. Buscar pacientes que han esperado más de 90 minutos (5400 segundos)
+        //1. Buscar pacientes que han esperado más de 90 minutos (5400 segundos)
         Paciente pacienteEsperandoMucho = null;
         long maxEspera = 0;
         for (Paciente p : hospital.getColaAtencion()) {
