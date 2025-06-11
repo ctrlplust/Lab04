@@ -31,6 +31,9 @@ public class SimuladorUrgencia {
     public void simular(int pacientesPorDia) {
         int minutoActual = 0;
         int pacientesIngresados = 0;
+        /*
+        int nuevosPacientesRecientes = 0; // Funciona con el que se atienden en ráfaga.
+        */
         Queue<Paciente> colaPacientes = new LinkedList<>(pacientesDia);
 
         while (minutoActual < 24 * 60) {
@@ -42,9 +45,27 @@ public class SimuladorUrgencia {
                 Paciente nuevo = colaPacientes.poll();
                 hospital.registrarPaciente(nuevo);
                 pacientesIngresados++;
+                /*
+                nuevosPacientesRecientes++; // atienden en ráfaga.
+                */
             }
+            
+            // === 2. ATENCIÓN EN RÁFAGA SI HAY 3 NUEVOS PACIENTES ===
+            // Esta sección implementa un comportamiento poco realista en el contexto de un sistema de urgencias:
+            // cada vez que llegan 3 pacientes nuevos, se los atiende inmediatamente en una "ráfaga".
+            // Este enfoque no considera la disponibilidad de médicos, tiempos de espera previos, ni prioridades reales.
+            // Por esa razón, he dejado esta parte comentada. Si quieres probar cómo funciona, puedes activarla,
+            // pero personalmente no recomiendo su uso ya que simula un hospital utópico con atención instantánea.
 
-            // 2. REVISIÓN DE EMERGENCIAS Y TIEMPOS EXCEDIDOS (se ejecuta cada minuto)
+            /*
+            if (nuevosPacientesRecientes >= 3) {
+            for (int i = 0; i < 2; i++) {
+            atenderPacientePrioritario(tiempoSimulacionSegundos);
+            }
+            nuevosPacientesRecientes = 0;
+        }
+        */
+            // 3. REVISIÓN DE EMERGENCIAS Y TIEMPOS EXCEDIDOS (se ejecuta cada minuto)
             Iterator<Paciente> it = hospital.getColaAtencion().iterator();
             while (it.hasNext()) {
                 Paciente p = it.next();
@@ -65,7 +86,7 @@ public class SimuladorUrgencia {
                 }
             }
 
-            // 3. ATENCIÓN REGULAR DEL HOSPITAL
+            // 4. ATENCIÓN REGULAR DEL HOSPITAL
             // Se establece una tasa de atención base y predecible. Cada 15 minutos,
             // el sistema atenderá a UN solo paciente: el más prioritario en ese momento.
             // Esta cadencia (llegada cada 10 min vs atención cada 15 min) garantiza
