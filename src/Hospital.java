@@ -7,7 +7,7 @@ public class Hospital {
     private PriorityQueue<Paciente> colaAtencion;
     private Map<String, AreaAtencion> areasAtencion;
     private List<Paciente> pacientesAtendidos;
-    private int tiempoActual = 0; // Debes actualizarlo desde el simulador
+    private int tiempoActual = 0;
 
     // Comparador para la cola general
     private static class PacienteComparator implements Comparator<Paciente> {
@@ -110,7 +110,6 @@ public class Hospital {
         return colaAtencion.remove(p);
     }
 
-    // Método para actualizar el tiempo actual desde el simulador
     public void setTiempoActual(int tiempoActual) {
         this.tiempoActual = tiempoActual;
     }

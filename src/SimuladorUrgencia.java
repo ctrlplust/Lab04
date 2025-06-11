@@ -204,7 +204,7 @@ public class SimuladorUrgencia {
     }
     public static void main(String[] args) {
         boolean modoPromedio = false;
-        if (args.length > 0 && args[0].equalsIgnoreCase("--average")) {
+        if (args.length > 0 && args[0].equalsIgnoreCase("--average")) { // average mode es para las 15 simulaciones
             modoPromedio = true;
         }
 
