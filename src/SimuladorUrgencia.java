@@ -2,6 +2,7 @@ package src;
 
 import java.util.*;
 import java.io.*;
+import src.GeneradorPacientes;
 
 public class SimuladorUrgencia {
 
@@ -201,55 +202,48 @@ public class SimuladorUrgencia {
             System.err.println("Error al guardar los tiempos de atención: " + e.getMessage());
         }
     }
-
-    public static List<Paciente> generarPacientes(int cantidad) {
-        List<Paciente> lista = new ArrayList<>();
-        Random rand = new Random();
-        for (int i = 0; i < cantidad; i++) {
-            String id = String.format("PX%04d", i+1);
-            String nombre = "Nombre" + i;
-            String apellido = "Apellido" + i;
-            int categoria = 1 + rand.nextInt(5); // 1 a 5
-            long tiempoLlegada = i * 300; // cada 5 minutos
-            String area = "sapu";
-            lista.add(new Paciente(nombre, apellido, id, categoria, tiempoLlegada, area));
-        }
-        return lista;
-    }
-
     public static void main(String[] args) {
-        int repeticiones = 15;
-        Map<Integer, Long> sumaPorCategoria = new HashMap<>();
-        Map<Integer, Integer> cantidadPorCategoria = new HashMap<>();
-        List<Paciente> pacientesUltimaSimulacion = null;
+        boolean modoPromedio = false;
+        if (args.length > 0 && args[0].equalsIgnoreCase("--average")) {
+            modoPromedio = true;
+        }
 
-        for (int i = 0; i < repeticiones; i++) {
-            List<Paciente> pacientes = SimuladorUrgencia.generarPacientes(200);
-            SimuladorUrgencia simulador = new SimuladorUrgencia(pacientes);
-            simulador.simular(pacientes.size());
+        if (modoPromedio) {
+            // MODO PROMEDIO (15 SIMULACIONES)
+            System.out.println("--- Ejecutando prueba de promedios (15 simulaciones) ---");
+            int repeticiones = 15;
+            Map<Integer, Long> sumaPorCategoria = new HashMap<>();
+            Map<Integer, Integer> cantidadPorCategoria = new HashMap<>();
 
-            pacientesUltimaSimulacion = pacientes;
+            for (int i = 0; i < repeticiones; i++) {
+                System.out.printf("Iniciando simulación %d de %d...\n", i + 1, repeticiones);
+                List<Paciente> pacientes = GeneradorPacientes.generarPacientes(200, 0);
+                SimuladorUrgencia simulador = new SimuladorUrgencia(pacientes);
+                simulador.simular(pacientes.size());
 
-            for (int cat = 1; cat <= 5; cat++) {
-                long suma = simulador.sumaTiemposEsperaPorCategoria.getOrDefault(cat, 0L);
-                int cantidad = simulador.cantidadPorCategoria.getOrDefault(cat, 0);
-                sumaPorCategoria.put(cat, sumaPorCategoria.getOrDefault(cat, 0L) + suma);
-                cantidadPorCategoria.put(cat, cantidadPorCategoria.getOrDefault(cat, 0) + cantidad);
+                for (int cat = 1; cat <= 5; cat++) {
+                    long suma = simulador.sumaTiemposEsperaPorCategoria.getOrDefault(cat, 0L);
+                    int cantidad = simulador.cantidadPorCategoria.getOrDefault(cat, 0);
+                    sumaPorCategoria.put(cat, sumaPorCategoria.getOrDefault(cat, 0L) + suma);
+                    cantidadPorCategoria.put(cat, cantidadPorCategoria.getOrDefault(cat, 0) + cantidad);
+                }
             }
-        }
 
-        System.out.println("\n===== Promedio de espera por categoría en " + repeticiones + " simulaciones =====");
-        for (int cat = 1; cat <= 5; cat++) {
-            int cantidad = cantidadPorCategoria.getOrDefault(cat, 0);
-            long suma = sumaPorCategoria.getOrDefault(cat, 0L);
-            double promedio = cantidad > 0 ? (double) suma / cantidad : 0;
-            System.out.printf("  - Categoría %d: %.2f segundos%n", cat, promedio);
-        }
+            System.out.println("\n===== Promedio de espera por categoría en " + repeticiones + " simulaciones =====");
+            for (int cat = 1; cat <= 5; cat++) {
+                int cantidadTotal = cantidadPorCategoria.getOrDefault(cat, 0);
+                long sumaTotal = sumaPorCategoria.getOrDefault(cat, 0L);
+                double promedio = cantidadTotal > 0 ? (double) sumaTotal / cantidadTotal : 0;
+                System.out.printf("  - Categoría %d: %.2f segundos (aprox. %.1f minutos)\n", cat, promedio, promedio / 60.0);
+            }
 
-        // Mostrar historial de cambios de un paciente 
-        if (pacientesUltimaSimulacion != null && !pacientesUltimaSimulacion.isEmpty()) {
-            Paciente pacienteEjemplo = pacientesUltimaSimulacion.get(0); // O el paciente el cual elijas 
-            System.out.println("Historial de cambios: " + pacienteEjemplo.getHistorialCategorias());
+        } else {
+            // MODO ANÁLISIS ÚNICO
+            System.out.println("--- Ejecutando análisis de una simulación de 24h ---");
+            List<Paciente> pacientesDelDia = GeneradorPacientes.generarPacientes(200, 0);
+            SimuladorUrgencia simulador = new SimuladorUrgencia(pacientesDelDia);
+            simulador.simular(pacientesDelDia.size());
+            simulador.mostrarEstadisticas(); 
         }
     }
 }
