@@ -6,13 +6,13 @@ import java.io.*;
 public class GeneradorPacientes {
 
     private static final String[] Nombres = {
-        "Juan", "María", "Pedro", "Ana", "Luis", "Laura", "Carlos", "Marta",
-        "Javier", "Sofía", "Diego", "Isabel", "Andrés", "Clara", "Fernando"
+        "Mr", "Jose", "Mariana", "Cristian", "Luis", "Laura", "Guillermo", "Marta",
+        "Marcos", "Alpha", "Diego", "The", "Andrés", "Auron", "Mia"
     };
 
     private static final String[] Apellidos = {
-        "Gómez", "Pérez", "López", "Martínez", "Sánchez", "Rodríguez", "Fernández",
-        "García", "Díaz", "Moreno", "Romero", "Torres", "Vázquez", "Jiménez"
+        "Lean", "Beast", "Solis", "Grande", "Villavicencio", "Slimming", "Fantoval",
+        "García", "Díaz", "Sniper", "Grefg", "Play", "Alonso", "Khalifa"
     };
 
     private static final String[] Areas = {

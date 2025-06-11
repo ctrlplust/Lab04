@@ -7,7 +7,7 @@ public class Hospital {
     private PriorityQueue<Paciente> colaAtencion;
     private Map<String, AreaAtencion> areasAtencion;
     private List<Paciente> pacientesAtendidos;
-    private int tiempoActual = 0;
+    private long tiempoActual = 0;
 
     // Comparador para la cola general
     private static class PacienteComparator implements Comparator<Paciente> {
@@ -74,8 +74,19 @@ public class Hospital {
         }
     }
 
-    public Paciente atenderSiguiente() {
+    public Paciente atenderSiguiente(long tiempoSimulacion) {
+        this.tiempoActual = tiempoSimulacion;
+
+        if (colaAtencion.isEmpty()) {
+            return null;
+        }
+
+        List<Paciente> pacientesEnEspera = new ArrayList<>(colaAtencion);
+        colaAtencion.clear();
+        colaAtencion.addAll(pacientesEnEspera);
+
         Paciente siguiente = colaAtencion.poll();
+
         if (siguiente != null) {
             siguiente.setEstado("atendido");
             siguiente.registrarCambio("Paciente atendido");
@@ -99,7 +110,7 @@ public class Hospital {
     }
 
     public Collection<Paciente> getColaAtencion() {
-        return new ArrayList<>(colaAtencion);
+        return this.colaAtencion;
     }
 
     public List<Paciente> getPacientesAtendidos() {
@@ -126,8 +137,18 @@ public class Hospital {
         hospital.registrarPaciente(p3);
 
         hospital.reasignarCategoria("003", 1);
+        System.out.println("\n--- Prueba de Cambio de Categoría ---");
+        Paciente pTest = new Paciente("Test", "Paciente", "T001", 3, System.currentTimeMillis() / 1000L, "sapu");
+        hospital.registrarPaciente(pTest);
+        System.out.println("Estado inicial: " + pTest.getNombre() + ", Cat: " + pTest.getCategoria());
+        System.out.println("Historial inicial: " + pTest.getHistorialCambios());
 
-        Paciente atendido = hospital.atenderSiguiente();
+        hospital.reasignarCategoria("T001", 1); // Reasignar de C3 a C1
+
+        System.out.println("Estado final: " + pTest.getNombre() + ", Cat: " + pTest.getCategoria());
+        System.out.println("Historial final: " + pTest.getHistorialCambios());
+
+        Paciente atendido = hospital.atenderSiguiente(0);
         System.out.println("Paciente atendido: " + atendido.getNombre());
 
         List<Paciente> cat1 = hospital.obtenerPacientesPorCategoria(1);
