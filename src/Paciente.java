@@ -11,7 +11,8 @@ public class Paciente {
     private String estado; // "en_espera", "en_atencion", "atendido"
     private String area; // "SAPU", "urgencia_adulto", "infantil"
     private Stack<String> historialCambios;
-    private Stack<Integer> historialCategorias = new Stack<>();
+    private Stack<String> historial = new Stack<>();
+    private long tiempoAtencion = -1; // -1 si no ha sido atendido
 
     // Constructor
     public Paciente(String nombre, String apellido, String id, int categoria, long tiempoLlegada, String area) {
@@ -70,6 +71,14 @@ public class Paciente {
         this.categoria = categoria;
     }
 
+    public void setTiempoAtencion(long tiempoAtencion) {
+        this.tiempoAtencion = tiempoAtencion;
+    }
+
+    public long getTiempoAtencion() {
+        return tiempoAtencion;
+    }
+
     // Métodos
     public long tiempoEsperaActual() {
         long ahora = System.currentTimeMillis() / 1000L; // en segundos
@@ -88,11 +97,16 @@ public class Paciente {
     }
 
     public void cambiarCategoria(int nuevaCategoria) {
-        historialCategorias.push(this.categoria); // Guarda la anterior
+        historial.push("Cambio de " + this.categoria + " a " + nuevaCategoria + " en " + System.currentTimeMillis());
         this.categoria = nuevaCategoria;
     }
 
-    public Stack<Integer> getHistorialCategorias() {
-        return historialCategorias;
+    public Stack<String> getHistorialCategorias() {
+        return historial;
+    }
+
+    public long getTiempoEspera() {
+        if (tiempoAtencion < 0) return -1;
+        return tiempoAtencion - tiempoLlegada;
     }
 }
