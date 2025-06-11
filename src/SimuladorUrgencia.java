@@ -210,7 +210,6 @@ public class SimuladorUrgencia {
         Map<Integer, Integer> cantidadPorCategoria = new HashMap<>();
 
         for (int i = 0; i < 15; i++) {
-            // Clonar la lista para cada simulación (evita efectos colaterales)
             List<Paciente> copiaPacientes = new ArrayList<>();
             for (Paciente p : pacientes) {
                 copiaPacientes.add(new Paciente(
@@ -241,7 +240,6 @@ public class SimuladorUrgencia {
         List<Paciente> pacientesSaturados = generarPacientes(200);
         SimuladorUrgencia simuladorSaturado = new SimuladorUrgencia(pacientesSaturados);
         simuladorSaturado.simular(pacientesSaturados.size());
-        // Puedes imprimir aquí los promedios por categoría:
         System.out.println("\n===== Saturación: Promedio de espera por categoría =====");
         for (int cat = 1; cat <= 5; cat++) {
             int cantidad = simuladorSaturado.cantidadPorCategoria.getOrDefault(cat, 0);
@@ -250,7 +248,7 @@ public class SimuladorUrgencia {
             System.out.printf("  - Categoría %d: %.2f segundos%n", cat, promedio);
         }
 
-        // Simulación de cambio de categoría
+        // simulacion de cambio de categoría
         List<Paciente> pacientesCambio = generarPacientes(10);
         Paciente malCategorizado = pacientesCambio.get(3); // Por ejemplo, el 4to paciente
         System.out.println("\nAntes del cambio: " + malCategorizado.getNombre() + " categoría: " + malCategorizado.getCategoria());
