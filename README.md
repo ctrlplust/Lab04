@@ -8,4 +8,12 @@ Antes crear bin, Para poder compilar todos los .class en el bin
 
 # Ejecutar Clases
 
-<pre> java -cp bin src. </pre>
+<pre> java -cp bin src.AreaAtencion </pre>
+
+<pre> java -cp bin src.GeneradorPacientes </pre>
+
+<pre> java -cp bin src.Hospital </pre>
+
+<pre> java -cp bin src.Paciente </pre>
+
+<pre> java -cp bin src.SimuladorUrgencia </pre>
